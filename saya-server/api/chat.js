@@ -1,35 +1,26 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2759
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+// api/chat.js
+export default async function handler(req, res) {
+    if (req.method === 'POST') {
+        const { messages, model, max_tokens } = req.body;
 
-\f0\fs24 \cf0 const axios = require('axios'); // This helps us make requests to OpenAI\
-\
-export default async function handler(req, res) \{\
-    if (req.method !== 'POST') \{\
-        res.status(405).send(\{ message: 'Only POST requests allowed' \});\
-        return;\
-    \}\
-\
-    const OPENAI_API_KEY = "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";\
-\
-    try \{\
-        const response = await axios.post(\
-            'https://api.openai.com/v1/chat/completions',\
-            req.body,\
-            \{\
-                headers: \{\
-                    'Content-Type': 'application/json',\
-                    'Authorization': `Bearer $\{OPENAI_API_KEY\}`\
-                \}\
-            \}\
-        );\
-\
-        res.status(200).json(response.data);\
-    \} catch (error) \{\
-        console.error(error.response.data);\
-        res.status(500).json(\{ message: "Error with OpenAI request", error: error.response.data \});\
-    \}\
-\}}
+        // Call OpenAI API here or whatever logic you want
+
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: model || 'gpt-3.5-turbo',
+                messages: messages,
+                max_tokens: max_tokens || 200
+            })
+        });
+
+        const data = await response.json();
+        res.status(200).json(data);
+    } else {
+        res.status(405).json({ message: 'Method Not Allowed' });
+    }
+}
